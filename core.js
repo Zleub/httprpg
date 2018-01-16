@@ -34,10 +34,11 @@ let _common = (kl, k) => function (opt) {
 		Object
 	]
 
-	// let __parent = (kl.__parent || 'Item').toLowerCase()
+	// let __parent = (kl.__parent || 'Item')
 	// let attrs = {}
 
 	// this.attrs[__parent] = {}
+	// this.attrs = Object.assign
 	Object.getOwnPropertyNames(kl).filter(e => e.search(/^__.+/)).forEach(e => {
 		if (typeof kl[e] == 'function' && !defaultFunctions.some(_ => _ == kl[e])) {
 			console.log('!!?!!', e)
@@ -48,7 +49,9 @@ let _common = (kl, k) => function (opt) {
 		// if (typeof kl == 'function')
 		// 	this[e] = kl[e]
 		// else
-		if (!this.attrs[e] || typeof this.attrs[e] == 'function') {
+		// console.log(e, kl.__parent, global[kl.__parent].description)
+		if (this.attrs[e] == undefined || (global[kl.__parent] && global[kl.__parent].description[e] == this.attrs[e]) || typeof this.attrs[e] == 'function') {
+			// console.log(`this.attrs[${e}] = ${kl[e]}`)
 			this.attrs[e] = kl[e]
 			this[e] = function(v) { return v ? (this.attrs[e] = v) : this.attrs[e] }
 		}
@@ -57,28 +60,30 @@ let _common = (kl, k) => function (opt) {
 	// attrs[__parent] = this.attrs
 	// this.attrs = attrs
     //
-	// let v = Object.getOwnPropertyNames(kl).filter(e => e.search(/^__.+/)).reduce( (p, e) => {
-	// 	if (!this.attrs[e] || typeof this.attrs[e] == 'function')
-	// 		p.push(e)
-	// 	return p
-	// }, [])
+	let v = Object.getOwnPropertyNames(kl).filter(e => e.search(/^__.+/)).reduce( (p, e) => {
+		if (!this.attrs[e] || typeof this.attrs[e] == 'function')
+			p.push(e)
+		return p
+	}, [])
 
-	console.log(this.type())
-	if (!this.type() || defaultFunctions.some(_ => _ == this.type()))
-		this.type([k])
-	else
-		this.type().push(k)
-
+	// console.log(this.type())
 
 	// console.log(k, kl)
 	// console.log(this)
 
 
 	verbose_instanciated(k)
-	// if (v.length != 0) {
-	// 	verbose_warn(`Some properties are missing:`)
-	// 	notify(`\t${v}`)
-	// }
+	if (v.length != 0) {
+		verbose_warn(`Some properties are missing:`)
+		notify(`\t${v}`)
+	}
+
+	if (!this.type() || defaultFunctions.some(_ => _ == this.type()))
+		this.type([k])
+	else
+		this.type().push(k)
+
+
 }
 
 // class Elf {
@@ -139,6 +144,7 @@ exports.metaFactory = klass => {
 					common.call(this, opt)
 				}
 				static get name() { return k }
+				static get description() { return klass[k] }
 			}
 
 			if (!k.match(/\s/)) // is a character class
@@ -151,6 +157,7 @@ exports.metaFactory = klass => {
 					common.call(this, opt)
 				}
 				static get name() { return k }
+				static get description() { return klass[k] }
 			}
 
 			schematize(k, kl)
@@ -161,8 +168,9 @@ exports.metaFactory = klass => {
 					common.call(this, opt)
 				}
 				static get name() { return k }
-				static get id() { return Item._id || 0 }
-				static set id(v) { Item._id = v }
+				static get count() { return Item._id || 0 }
+				static set count(v) { Item._id = v }
+				static get description() { return klass[k] }
 			}
 
 			global.schema[k] =

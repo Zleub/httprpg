@@ -28,9 +28,11 @@ metaFactory({
 		label: String,
 		description: String,
 		__constructor: function (opt) {
-			this.attrs = {
-				id: (Item.id++)
-			}
+			this.attrs = {}
+			// console.log('->', this, opt, global[opt.__parent])
+			this.attrs = Object.assign(opt, {
+				id: (Item.count++)
+			})
 			db.push(this)
 		}
 	},
@@ -57,8 +59,8 @@ metaFactory({
 		__parent: 'Race',
 		__constructor: function (opt) {
 			return metaFactory({
-				[opt.name]: Object.assign({
-					__parent: 'Character'
+				[opt.label /*warning*/]: Object.assign({
+					__parent: opt.__parent || 'Character'
 				}, opt)
 			})
 		}
@@ -105,12 +107,12 @@ metaFactory({
 })
 
 new Item({
-	name: 'TestItem',
+	label: 'TestItem',
 	description: 'A test description'
 })
 
 new Race({
-	name: 'Elf',
+	label: 'Elf',
 	race: 'Elf',
 	description: 'An elf factory declaration',
 	attributes: {
@@ -123,13 +125,16 @@ new Race({
 })
 
 new Race({
-	name: 'Dwarf',
+	label: 'Dwarf',
 	race: 'Dwarf',
 	description: 'A dwarf factory declaration'
 })
 
-metaFactory({
-	'DarkElf': { __parent: 'Elf' }
+new Race({
+	label: 'DarkElf',
+	race: 'DarkElf',
+	// description: 'An darkelf factory declaration',
+	__parent: 'Elf'
 })
 
 let races = [ Elf, Dwarf, DarkElf ]
@@ -137,6 +142,24 @@ let races = [ Elf, Dwarf, DarkElf ]
 // let group = new Group({
 // 	name: "Test ?",
 // })
+
+let Chance = require('chance')
+let chance = new Chance()
+let d4gen = () => {
+	let d4 = chance.d4()
+	return () => d4
+}
+new DarkElf({
+	label: chance.name(),
+	description: "...",
+	attributes: {
+		agility: d4gen(),
+		smarts: d4gen(),
+		spirit: d4gen(),
+		strength: d4gen(),
+		vigor: d4gen()
+	}
+})
 
 for (var i = 0; i < 2; i++) {
 	let r = Math.floor(Math.random() * races.length)
@@ -147,6 +170,13 @@ for (var i = 0; i < 2; i++) {
 // battle(group, undefined)
 log(db)
 
+
+
+
+
+
+
+
 var { readFileSync } = require('fs')
 var { graphql, buildSchema } = require('graphql')
 
@@ -155,7 +185,7 @@ let stringSchema = Object.keys(global.schema).reduce( (p, e) => {
 	return p
 }, "" ) + "type Query {\n" + Object.keys(global.schema).reduce( (p, k) => {
 	if (!k.match(/^_/))
-		p += `\t${k.toLowerCase()}(id: [ID], name: [String]): [${k}]!\n`
+		p += `\t${k.toLowerCase()}(id: [ID], label: [String]): [${k}]!\n`
 	return p
 }, "" ) + "}\n"
 

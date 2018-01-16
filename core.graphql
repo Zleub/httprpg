@@ -38,15 +38,16 @@ type Dwarf {
 
 type DarkElf {
 	elf: [Elf]!
+	description: String!
 }
 
 type Query {
-	item(id: [ID], name: [String]): [Item]!
-	race(id: [ID], name: [String]): [Race]!
-	character(id: [ID], name: [String]): [Character]!
-	consommable(id: [ID], name: [String]): [Consommable]!
-	potions(id: [ID], name: [String]): [Potions]!
-	elf(id: [ID], name: [String]): [Elf]!
-	dwarf(id: [ID], name: [String]): [Dwarf]!
-	darkelf(id: [ID], name: [String]): [DarkElf]!
+	item(id: [ID], label: [String]): [Item]!
+	race(id: [ID], label: [String]): [Race]!
+	character(id: [ID], label: [String]): [Character]!
+	consommable(id: [ID], label: [String]): [Consommable]!
+	potions(id: [ID], label: [String]): [Potions]!
+	elf(id: [ID], label: [String]): [Elf]!
+	dwarf(id: [ID], label: [String]): [Dwarf]!
+	darkelf(id: [ID], label: [String]): [DarkElf]!
 }

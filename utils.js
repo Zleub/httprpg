@@ -30,8 +30,8 @@ let d4gen = () => {
 }
 let randomCharacter = (klass) => {
 	return new klass ({
-		name: chance.name(),
-		description: "...",
+		label: chance.name(),
+		// description: "...",
 		race: klass.name,
 		attributes: {
 			agility: d4gen(),
