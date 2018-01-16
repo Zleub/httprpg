@@ -1,0 +1,49 @@
+interface _Item {
+	id: ID!
+	type: String!
+
+	name: String!
+	description: String!
+}
+
+type Item implements _Item {
+	id: ID!
+	type: String!
+
+	name: String!
+	description: String!
+}
+
+type Attributes {
+	agility: Int!,
+	smarts: Int!,
+	spirit: Int!,
+	strength: Int!,
+	vigor: Int!
+}
+
+type Race implements _Item {
+	id: ID!
+	type: String!
+
+	name: String!
+	description: String!
+	race: String!
+	attributes: Attributes!
+}
+
+type Character implements _Item {
+	id: ID!
+	type: String!
+
+	name: String!
+	description: String!
+	race: String!
+	attributes: Attributes!
+}
+
+type Query {
+	item(id: [ID], name: [String]): [Item]!
+	race(id: [ID], name: [String]): [Race]!
+	character(id: [ID], name: [String]): [Character]!
+}
