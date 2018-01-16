@@ -39,32 +39,40 @@ let _common = (kl, k) => function (opt) {
 
 	// this.attrs[__parent] = {}
 	// this.attrs = Object.assign
+	// console.log(kl.description)
 	Object.getOwnPropertyNames(kl).filter(e => e.search(/^__.+/)).forEach(e => {
-		if (typeof kl[e] == 'function' && !defaultFunctions.some(_ => _ == kl[e])) {
+		let _e = kl[e]
+		console.log(e, _e)
+		if (typeof _e == 'function' && !defaultFunctions.some(_ => _ == _e)) {
 			console.log('!!?!!', e)
-			this[e] = kl[e].bind(this)
+			this[e] = _e.bind(this)
 		}
 	// }, [])
 		else
 		// if (typeof kl == 'function')
-		// 	this[e] = kl[e]
+		// 	this[e] = _e
 		// else
-		// console.log(e, kl.__parent, global[kl.__parent].description)
-		if (this.attrs[e] == undefined || (global[kl.__parent] && global[kl.__parent].description[e] == this.attrs[e]) || typeof this.attrs[e] == 'function') {
-			// console.log(`this.attrs[${e}] = ${kl[e]}`)
-			this.attrs[e] = kl[e]
+		// console.log(e, kl.__parent, global[kl.__parent].factory)
+		if (this.attrs[e] == undefined ||
+			(global[kl.__parent] && global[kl.__parent].factory[e] == this.attrs[e]) ||
+			typeof this.attrs[e] == 'function') {
+			console.log(`this.attrs[${e}] = ${_e}`)
+			this.attrs[e] = _e
 			this[e] = function(v) { return v ? (this.attrs[e] = v) : this.attrs[e] }
 		}
 	})
+
 	// if ((kl.__parent || 'Item') != k)
 	// attrs[__parent] = this.attrs
 	// this.attrs = attrs
     //
-	let v = Object.getOwnPropertyNames(kl).filter(e => e.search(/^__.+/)).reduce( (p, e) => {
-		if (!this.attrs[e] || typeof this.attrs[e] == 'function')
-			p.push(e)
-		return p
-	}, [])
+	// this.attrs = Object.assign(this.attrs, kl, global[kl.__parent] ? global[kl.__parent].factory[e] : undefined)
+
+	// let v = Object.getOwnPropertyNames(kl).filter(e => e.search(/^__.+/)).reduce( (p, e) => {
+	// 	if (!this.attrs[e] || typeof this.attrs[e] == 'function')
+	// 		p.push(e)
+	// 	return p
+	// }, [])
 
 	// console.log(this.type())
 
@@ -73,10 +81,10 @@ let _common = (kl, k) => function (opt) {
 
 
 	verbose_instanciated(k)
-	if (v.length != 0) {
-		verbose_warn(`Some properties are missing:`)
-		notify(`\t${v}`)
-	}
+	// if (v.length != 0) {
+	// 	verbose_warn(`Some properties are missing:`)
+	// 	notify(`\t${v}`)
+	// }
 
 	if (!this.type() || defaultFunctions.some(_ => _ == this.type()))
 		this.type([k])
@@ -137,6 +145,7 @@ exports.metaFactory = klass => {
 		let kl = klass[k]
 		let common = _common(kl, k)
 
+		console.log(k, 'kl:', kl)
 		if (kl.__parent && global[kl.__parent]) {
 			global[k] = class extends global[kl.__parent] {
 				constructor(opt) {
@@ -144,7 +153,7 @@ exports.metaFactory = klass => {
 					common.call(this, opt)
 				}
 				static get name() { return k }
-				static get description() { return klass[k] }
+				static get factory() { return kl }
 			}
 
 			if (!k.match(/\s/)) // is a character class
@@ -157,7 +166,7 @@ exports.metaFactory = klass => {
 					common.call(this, opt)
 				}
 				static get name() { return k }
-				static get description() { return klass[k] }
+				static get factory() { return kl }
 			}
 
 			schematize(k, kl)
@@ -170,7 +179,7 @@ exports.metaFactory = klass => {
 				static get name() { return k }
 				static get count() { return Item._id || 0 }
 				static set count(v) { Item._id = v }
-				static get description() { return klass[k] }
+				static get factory() { return kl }
 			}
 
 			global.schema[k] =
@@ -183,6 +192,7 @@ exports.metaFactory = klass => {
 
 		}
 		verbose_created(k)
+		console.log(global[k].factory)
 		return global[k]
 	})
 }

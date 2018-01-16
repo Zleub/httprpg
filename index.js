@@ -58,8 +58,17 @@ metaFactory({
 		// gear: Array,
 		__parent: 'Race',
 		__constructor: function (opt) {
+			let p = (opt.__parent ? global[opt.__parent].factory : {})
+			opt = Object.keys(opt).reduce((p,k) => {
+				if (typeof opt[k] != 'function')
+					p[k] = opt[k]
+				return p
+			}, {})
+			console.log(`parent`, p)
+			console.log(`attrs`, this.attrs)
+			console.log(`-> ${opt.label}`, opt)
 			return metaFactory({
-				[opt.label /*warning*/]: Object.assign({
+				[opt.label /*warning*/]: Object.assign(p, {
 					__parent: opt.__parent || 'Character'
 				}, opt)
 			})
@@ -142,6 +151,9 @@ let races = [ Elf, Dwarf, DarkElf ]
 // let group = new Group({
 // 	name: "Test ?",
 // })
+
+log(db)
+log('----------------------------------------------')
 
 let Chance = require('chance')
 let chance = new Chance()
