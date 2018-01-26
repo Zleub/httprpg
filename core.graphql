@@ -5,13 +5,12 @@ type Item {
 	description: String!
 }
 
+union Group: Item
 type Race {
-	item: Item!
 	race: String!
 }
 
 type Character {
-	item: Item!
 	race: Race!
 	skills: [String]!
 	edges: [String]!
@@ -20,28 +19,16 @@ type Character {
 }
 
 type Consommable {
-	item: Item!
 	nb_utilisation: Int!
 }
 
-type Potions {
-	consommable: [Consommable]!
-}
-
-type Elf {
-	character: [Character]!
-}
-
-type Dwarf {
-	character: [Character]!
-}
-
-type DarkElf {
-	elf: [Elf]!
-}
-
+union Potions: Consommable | Item
+union Elf: Character | Item
+union Dwarf: Character | Item
+union DarkElf: Character | Item
 type Query {
 	item(id: [ID], label: [String]): [Item]!
+	group(id: [ID], label: [String]): [Group]!
 	race(id: [ID], label: [String]): [Race]!
 	character(id: [ID], label: [String]): [Character]!
 	consommable(id: [ID], label: [String]): [Consommable]!

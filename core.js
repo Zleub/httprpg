@@ -39,10 +39,10 @@ let _common = (kl, k) => function (opt) {
 
 	// this.attrs[__parent] = {}
 	// this.attrs = Object.assign
-	// console.log(kl.description)
+	// console.log('instancing: ', kl)
 	Object.getOwnPropertyNames(kl).filter(e => e.search(/^__.+/)).forEach(e => {
 		let _e = kl[e]
-		console.log(e, _e)
+		// console.log(e, _e)
 		if (typeof _e == 'function' && !defaultFunctions.some(_ => _ == _e)) {
 			console.log('!!?!!', e)
 			this[e] = _e.bind(this)
@@ -56,7 +56,7 @@ let _common = (kl, k) => function (opt) {
 		if (this.attrs[e] == undefined ||
 			(global[kl.__parent] && global[kl.__parent].factory[e] == this.attrs[e]) ||
 			typeof this.attrs[e] == 'function') {
-			console.log(`this.attrs[${e}] = ${_e}`)
+			// console.log(`this.attrs[${e}] = ${_e}`)
 			this.attrs[e] = _e
 			this[e] = function(v) { return v ? (this.attrs[e] = v) : this.attrs[e] }
 		}
@@ -124,19 +124,30 @@ let toString = (kl, k) => {
 	return kl[k].name
 }
 let schematize = (k, kl, p) => {
-	let keys = Object.keys(kl) // .filter( e => !e.match(/^__.*/) )
+	let keys = Object.keys(kl).filter( e => !e.match(/^__.*/) )
 	// console.log(k, kl, p)
 	// console.log(global.schema)
 	if (keys.length != 0) {
 		global.schema[k] = [`type ${k} {\n`].concat(
+			[]
 			// global.schema[`${p ? p : "Item"}`].slice(1, -1)
-			[p ? `\t${p.toLowerCase()}: [${p}]!\n` : `\titem: Item!\n`]
+			// [p ? `\t${p.toLowerCase()}: ${p}!\n` : `\titem: Item!\n`]
 		).concat(
 			keys.map( k => {
 				if (!k.match(/^__.*/) && toString(kl, k))
 					return `\t${k}: ${ toString(kl, k) }!\n`
 				return ''
 		} )).concat(["}\n\n"])
+	}
+	else {
+		let getParent = (parent, p = []) => {
+			if (parent)
+				return getParent(parent.__parent, p.concat([parent]))
+			else
+				return k != 'Item' ? p.concat('Item') : p
+		}
+		let parents = getParent(kl.__parent)
+		global.schema[k] = [ `union ${k}: ${parents.toString().replace(',', ' | ')}\n` ]
 	}
 }
 
@@ -145,10 +156,11 @@ exports.metaFactory = klass => {
 		let kl = klass[k]
 		let common = _common(kl, k)
 
-		console.log(k, 'kl:', kl)
+		// console.log(k, 'kl:', kl)
 		if (kl.__parent && global[kl.__parent]) {
 			global[k] = class extends global[kl.__parent] {
 				constructor(opt) {
+					console.log(`this is a constructor call`.cyan)
 					super(opt)
 					common.call(this, opt)
 				}
@@ -192,7 +204,7 @@ exports.metaFactory = klass => {
 
 		}
 		verbose_created(k)
-		console.log(global[k].factory)
+		// console.log(global[k].factory)
 		return global[k]
 	})
 }

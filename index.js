@@ -31,7 +31,14 @@ metaFactory({
 			this.attrs = {}
 			// console.log('->', this, opt, global[opt.__parent])
 			this.attrs = Object.assign(opt, {
-				id: (Item.count++)
+				id: (Item.count++),
+				// elf: {
+				// 	character: {
+				// 		item: {
+				// 			id: (Item.count++)
+				// 		}
+				// 	}
+				// }
 			})
 			db.push(this)
 		}
@@ -64,13 +71,16 @@ metaFactory({
 					p[k] = opt[k]
 				return p
 			}, {})
-			console.log(`parent`, p)
-			console.log(`attrs`, this.attrs)
-			console.log(`-> ${opt.label}`, opt)
+			// console.log(`parent`, p)
+			// console.log(`attrs`, this.attrs)
+			// console.log(`-> ${opt.label}`, opt)
 			return metaFactory({
-				[opt.label /*warning*/]: Object.assign(p, {
-					__parent: opt.__parent || 'Character'
-				}, opt)
+				// [opt.label /*warning*/]: Object.assign(p, {
+				// 	__parent: 'Character'
+				// }, opt)
+				[opt.label /*warning*/]: {
+					__parent: 'Character'
+				}
 			})
 		}
 	},
@@ -152,8 +162,8 @@ let races = [ Elf, Dwarf, DarkElf ]
 // 	name: "Test ?",
 // })
 
-log(db)
-log('----------------------------------------------')
+// log(db)
+// log('----------------------------------------------')
 
 let Chance = require('chance')
 let chance = new Chance()
@@ -180,7 +190,7 @@ for (var i = 0; i < 2; i++) {
 }
 
 // battle(group, undefined)
-log(db)
+// log(db)
 
 
 
