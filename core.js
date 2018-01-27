@@ -147,7 +147,7 @@ let schematize = (k, kl, p) => {
 				return k != 'Item' ? p.concat('Item') : p
 		}
 		let parents = getParent(kl.__parent)
-		global.schema[k] = [ `union ${k}: ${parents.toString().replace(',', ' | ')}\n` ]
+		global.schema[k] = [ `union ${k} = ${parents.toString().replace(',', ' | ')}\n` ]
 	}
 }
 
